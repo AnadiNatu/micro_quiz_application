@@ -32,6 +32,68 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        return http
+//                .csrf(csrf -> csrf.disable())
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .authorizeHttpRequests(auth -> auth
+//
+//                        // CREATE QUIZ
+//                        .requestMatchers("/api/quiz")
+//                        .hasAnyAuthority(UserRoles.ADMIN.name(), UserRoles.CURATOR.name())
+//
+//                        // START QUIZ
+//                        .requestMatchers("/api/quiz/*/start")
+//                        .hasAnyAuthority(UserRoles.PARTICIPANT.name())
+//
+//                        // SUBMIT QUIZ
+//                        .requestMatchers("/api/quiz/submit")
+//                        .hasAnyAuthority(UserRoles.PARTICIPANT.name())
+//
+//                        // VIEW QUIZ
+//                        .requestMatchers("/api/quiz/**")
+//                        .authenticated()
+//
+//                        .anyRequest().authenticated()
+//                )
+//                .sessionManagement(manager ->
+//                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authenticationProvider(authenticationProvider())
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+//                .build();
+//    }
+
+//    New light weight security filter chain implement
+//@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//    return http
+//            .csrf(csrf -> csrf.disable())
+//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//            .authorizeHttpRequests(auth -> auth
+//
+//                    // Public
+//                    .requestMatchers("/api/questions/generate",
+//                            "/api/questions/fetch",
+//                            "/api/questions/category")
+//                    .permitAll()
+//
+//                    // Role based
+//                    .requestMatchers("/api/quiz")
+//                    .hasAnyAuthority("ADMIN", "CURATOR")
+//
+//                    .requestMatchers("/api/quiz/*/start",
+//                            "/api/quiz/submit")
+//                    .hasAuthority("PARTICIPANT")
+//
+//                    .anyRequest().authenticated()
+//            )
+//            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+//            .build();
+//}
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -40,30 +102,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        // CREATE QUIZ
-                        .requestMatchers("/api/quiz")
-                        .hasAnyAuthority(UserRoles.ADMIN.name(), UserRoles.CURATOR.name())
-
-                        // START QUIZ
-                        .requestMatchers("/api/quiz/*/start")
-                        .hasAnyAuthority(UserRoles.PARTICIPANT.name())
-
-                        // SUBMIT QUIZ
-                        .requestMatchers("/api/quiz/submit")
-                        .hasAnyAuthority(UserRoles.PARTICIPANT.name())
-
-                        // VIEW QUIZ
-                        .requestMatchers("/api/quiz/**")
-                        .authenticated()
+                        // optional health
+                        .requestMatchers("/actuator/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
 

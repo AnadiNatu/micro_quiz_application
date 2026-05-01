@@ -170,4 +170,17 @@ public class QuizService {
                 .percentage((correct * 100.0) / total)
                 .build();
     }
+
+    // ================= DELETE QUIZ =================
+    public QuizDTO deleteQuiz(Long id) {
+
+        Quiz quiz = quizRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        QuizDTO dto = QuizMapper.toDTO(quiz, null, null);
+
+        quizRepository.delete(quiz);
+
+        return dto; // 🔥 needed for @PostAuthorize
+    }
 }

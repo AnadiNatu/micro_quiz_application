@@ -124,4 +124,16 @@ public List<QuestionResponseDTO> getQuestionsByIds(List<Long> ids) {
                         .build())
                 .toList();
     }
+
+    public QuestionDto deleteQuestion(Long id) {
+
+        Questions question = questionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        QuestionDto dto = QuestionMapper.toDTO(question);
+
+        questionRepository.delete(question);
+
+        return dto;
+    }
 }

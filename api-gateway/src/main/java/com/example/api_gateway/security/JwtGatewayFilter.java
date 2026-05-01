@@ -49,6 +49,7 @@ public class JwtGatewayFilter implements GlobalFilter {
             String role = jwtUtil.extractRole(claims);
 
 //            This is the point I can add more things to the jwt after the .mutate() method . Just need to find out about the feasibility fo what all I can add to the JWT.
+//            Attach role to header (We can add what I was thinking to the request at this point , need to understand what all I can add to the jwt after mutating)
             ServerHttpRequest mutateRequest = exchange
                     .getRequest()
                     .mutate()

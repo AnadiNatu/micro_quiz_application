@@ -40,22 +40,22 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
 
-                        // 🔓 PUBLIC (frontend + feign)
-                        .requestMatchers(
-                                "/api/auth/signup",
-                                "/api/auth/login",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
-                                   // REQUIRED FOR FEIGN
-                        ).permitAll()
-                        .requestMatchers("/api/auth/all" , "/api/auth/{id}")
-                        .hasAuthority(UserRoles.ADMIN.name())
+                        // Public
+                        .requestMatchers("/api/questions/generate",
+                                "/api/questions/fetch",
+                                "/api/questions/category")
+                        .permitAll()
+
+                        // Role based
+                        .requestMatchers("/api/quiz")
+                        .hasAnyAuthority("ADMIN", "CURATOR")
+
+                        .requestMatchers("/api/quiz/*/start",
+                                "/api/quiz/submit")
+                        .hasAuthority("PARTICIPANT")
 
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

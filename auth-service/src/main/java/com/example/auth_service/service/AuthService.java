@@ -136,4 +136,17 @@ public class AuthService {
 
         return "Password reset successful";
     }
+
+    // ================= RESET PASSWORD =================
+    public UserDto disableUser(Long id) {
+
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setEnabled(false);
+
+        Users saved = userRepository.save(user);
+
+        return UserMapper.toDTO(saved);
+    }
 }

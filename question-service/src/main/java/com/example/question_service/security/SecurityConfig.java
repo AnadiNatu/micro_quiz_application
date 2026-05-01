@@ -32,37 +32,90 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//        return http
+//                .csrf(csrf -> csrf.disable())
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .authorizeHttpRequests(auth -> auth
+//
+//                        // 🔓 FEIGN + QUIZ ACCESS (VERY IMPORTANT)
+//                        .requestMatchers(
+//                                "/api/questions/generate",
+//                                "/api/questions/fetch",
+//                                "/api/questions/category"
+//                        ).permitAll()
+//
+//                        //OPTIONAL (frontend viewing)
+//                        .requestMatchers("/api/questions", "/api/questions/category/**")
+//                        .permitAll()
+//
+//                        // CREATE / ADMIN
+//                        .requestMatchers("/api/questions")
+//                        .hasAnyAuthority(UserRoles.ADMIN.name(), UserRoles.CURATOR.name())
+//
+//                        .anyRequest().authenticated()
+//                )
+//                .sessionManagement(manager ->
+//                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authenticationProvider(authenticationProvider())
+//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+//                .build();
+//    }
 
-        return http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
+//    Updated light weight security filter
+//@Bean
+//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//
+//    return http
+//            .csrf(csrf -> csrf.disable())
+//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//            .authorizeHttpRequests(auth -> auth
+//
+//                    // Public
+//                    .requestMatchers("/api/questions/generate",
+//                            "/api/questions/fetch",
+//                            "/api/questions/category")
+//                    .permitAll()
+//
+//                    // Role based
+//                    .requestMatchers("/api/quiz")
+//                    .hasAnyAuthority("ADMIN", "CURATOR")
+//
+//                    .requestMatchers("/api/quiz/*/start",
+//                            "/api/quiz/submit")
+//                    .hasAuthority("PARTICIPANT")
+//
+//                    .anyRequest().authenticated()
+//            )
+//            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+//            .build();
+//}
 
-                        // 🔓 FEIGN + QUIZ ACCESS (VERY IMPORTANT)
-                        .requestMatchers(
-                                "/api/questions/generate",
-                                "/api/questions/fetch",
-                                "/api/questions/category"
-                        ).permitAll()
+//    Light weight security config with pre authorize attribute annotations
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                        //OPTIONAL (frontend viewing)
-                        .requestMatchers("/api/questions", "/api/questions/category/**")
-                        .permitAll()
+    return http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
 
-                        // CREATE / ADMIN
-                        .requestMatchers("/api/questions")
-                        .hasAnyAuthority(UserRoles.ADMIN.name(), UserRoles.CURATOR.name())
+                    // 🔓 FEIGN CALLS
+                    .requestMatchers(
+                            "/api/questions/generate",
+                            "/api/questions/fetch"
+                    ).permitAll()
 
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(manager ->
-                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+                    // 🔒 EVERYTHING ELSE
+                    .anyRequest().authenticated()
+            )
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
+}
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
