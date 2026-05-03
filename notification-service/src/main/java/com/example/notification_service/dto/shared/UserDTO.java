@@ -1,4 +1,4 @@
-package com.example.quiz_service.dto.applicationDTO;
+package com.example.notification_service.dto.shared;
 
 import lombok.*;
 
@@ -6,11 +6,11 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponseDTO {
-
+public class UserDTO {
     private Long id;
     private String username;
     private String email;
+    private String phoneNumber;
     private String role;
-
+    private boolean enabled;
 }

@@ -78,4 +78,10 @@ public class AuthController {
     public ResponseEntity<UserDto> disableUser(@PathVariable Long id) {
         return ResponseEntity.ok(authService.disableUser(id));
     }
+
+    // NOTIFICATION FEIGN
+    @GetMapping("/internal/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id){
+        return ResponseEntity.ok(authService.getUserById(id));
+    }
 }

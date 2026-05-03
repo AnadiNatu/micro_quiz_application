@@ -43,7 +43,8 @@ public class SecurityConfig {
                         // Public
                         .requestMatchers("/api/questions/generate",
                                 "/api/questions/fetch",
-                                "/api/questions/category")
+                                "/api/questions/category",
+                                "/api/auth/internal/**")
                         .permitAll()
 
                         // Role based

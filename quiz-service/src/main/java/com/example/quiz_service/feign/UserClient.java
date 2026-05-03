@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "auth-service")
 public interface UserClient {
-    @GetMapping("/api/auth/{id}")
+    @GetMapping("/api/auth/internal/{id}") // The feign interface of endpoint for the user sync has been changed
     UserResponseDTO getUserById(@PathVariable Long id);
 }

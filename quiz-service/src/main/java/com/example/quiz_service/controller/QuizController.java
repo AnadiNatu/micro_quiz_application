@@ -1,6 +1,8 @@
 package com.example.quiz_service.controller;
 
 import com.example.quiz_service.dto.applicationDTO.*;
+import com.example.quiz_service.dto.notificationDTO.QuizResultDTO;
+import com.example.quiz_service.dto.notificationDTO.QuizStatsDTO;
 import com.example.quiz_service.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +86,29 @@ public class QuizController {
     public ResponseEntity<ResultDTO> submitQuiz(@RequestBody QuizTakenRequestDTO request) {
         return ResponseEntity.ok(quizService.submitQuiz(request));
     }
+// ===== NOTIFICATION SERVICE ENDPOINTS
+    //  All results for a specific quiz
+    @GetMapping("/{quizId}/results")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<QuizResultDTO>> getResultsByQuiz(@PathVariable Long quizId) {
+        return ResponseEntity.ok(quizService.getResultsByQuiz(quizId));
+    }
 
+    // All results for a participant
+    @GetMapping("/results/user/{userId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<QuizResultDTO>> getResultsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(quizService.getResultsByUser(userId));
+    }
+
+    // Aggregated stats for a quiz
+    @GetMapping("/{quizId}/stats")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
+    public ResponseEntity<QuizStatsDTO> getQuizStats(@PathVariable Long quizId) {
+        return ResponseEntity.ok(quizService.getQuizStats(quizId));
+    }
+
+    // DELETE QUIZ
     @DeleteMapping("/{id}")
     @PostAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     public ResponseEntity<QuizDTO> deleteQuiz(@PathVariable Long id) {
