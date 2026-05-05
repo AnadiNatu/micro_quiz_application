@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class GatewayJwtUtil {
@@ -16,7 +17,7 @@ public class GatewayJwtUtil {
     private String SECRET;
 
     private SecretKey getSigningKey(){
-        byte[] keyBytes = Decoders.BASE64URL.decode(SECRET);
+        byte[] keyBytes = SECRET.getBytes(StandardCharsets.UTF_8); // ✅
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -29,6 +30,6 @@ public class GatewayJwtUtil {
     }
 
     public String extractRole(Claims claims){
-        return claims.get("role" , String.class);
+        return claims.get("roles" , String.class);
     }
 }

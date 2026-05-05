@@ -2,6 +2,7 @@ package com.example.question_service.controller;
 
 import com.example.question_service.dto.applicationDTO.*;
 import com.example.question_service.service.QuestionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api/questions")
 @RequiredArgsConstructor
 @CrossOrigin("*")
+@Slf4j
 public class QuestionController {
 
     private final QuestionService questionService;
@@ -27,6 +29,7 @@ public class QuestionController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
     public ResponseEntity<QuestionDto> createQuestion(@RequestBody CreateQuestionDto dto) {
+        log.info("[QUESTION] Create question request: category={}", dto.getCategory());
         return ResponseEntity.ok(questionService.addQuestion(dto));
     }
 
@@ -34,6 +37,7 @@ public class QuestionController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<QuestionDto>> getAllQuestions() {
+        log.debug("[QUESTION] Fetch all questions");
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 
@@ -41,6 +45,7 @@ public class QuestionController {
     @GetMapping("/category/{category}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<QuestionDto>> getByCategory(@PathVariable String category) {
+        log.debug("[QUESTION] Fetch by category={}", category);
         return ResponseEntity.ok(questionService.getQuestionsByCategory(category));
     }
 
@@ -49,7 +54,7 @@ public class QuestionController {
     public ResponseEntity<List<Long>> generateQuiz(
             @RequestParam String category,
             @RequestParam Integer numQuestions) {
-
+        log.info("[QUESTION] Generate quiz: category={}, numQuestions={}", category, numQuestions);
         return ResponseEntity.ok(
                 questionService.getQuestionIdsForQuiz(category, numQuestions)
         );
@@ -59,7 +64,7 @@ public class QuestionController {
     @PostMapping("/fetch")
     public ResponseEntity<List<QuestionWrapper>> getQuestionsFromIds(
             @RequestBody List<Long> ids) {
-
+        log.debug("[QUESTION] Fetch by ids, count={}", ids.size());
         return ResponseEntity.ok(questionService.getQuestionsFromIds(ids));
     }
 
@@ -68,7 +73,7 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Integer> calculateScore(
             @RequestBody List<ResponseDto> responses) {
-
+        log.info("[QUESTION] Calculate Score");
         return ResponseEntity.ok(questionService.calculateScore(responses));
     }
 
@@ -77,7 +82,7 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ResponseEvaluationDto>> evaluate(
             @RequestBody List<ResponseDto> responses) {
-
+        log.info("[QUESTION] Evaluate Test Score");
         return ResponseEntity.ok(questionService.evaluateResponses(responses));
     }
 
@@ -85,6 +90,7 @@ public class QuestionController {
 @DeleteMapping("/{id}")
 @PostAuthorize("hasAnyAuthority('ADMIN','CURATOR')")
 public ResponseEntity<QuestionDto> deleteQuestion(@PathVariable Long id) {
+    log.warn("[QUESTION] Delete question request: questionId={}", id);
     return ResponseEntity.ok(questionService.deleteQuestion(id));
 }
 }

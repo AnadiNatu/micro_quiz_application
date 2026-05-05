@@ -41,7 +41,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Public
-                        .requestMatchers("/api/questions/generate",
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/questions/generate",
                                 "/api/questions/fetch",
                                 "/api/questions/category",
                                 "/api/auth/internal/**")

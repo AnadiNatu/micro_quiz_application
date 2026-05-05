@@ -5,6 +5,7 @@ import com.example.question_service.dto.quizDTO.QuestionResponseDTO;
 import com.example.question_service.entity.Questions;
 import com.example.question_service.mapper.QuestionMapper;
 import com.example.question_service.repository.QuestionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
@@ -29,34 +31,38 @@ public class QuestionService {
 
         Questions question = QuestionMapper.toEntity(dto);
         Questions saved = questionRepository.save(question);
-
+        log.info("[QUESTION] Question saved: id={}, category={}", saved.getId(), saved.getCategory());
         return QuestionMapper.toDTO(saved);
     }
 
     // ================= GET ALL =================
 
     public List<QuestionDto> getAllQuestions() {
-        return QuestionMapper.toDTOList(questionRepository.findAll());
+        List<QuestionDto> list = QuestionMapper.toDTOList(questionRepository.findAll());
+        log.debug("[QUESTION] Fetched all questions, count={}", list.size());
+        return list;
     }
 
     // ================= FILTER =================
 
     public List<QuestionDto> getQuestionsByCategory(String category) {
-        return QuestionMapper.toDTOList(
-                questionRepository.findByCategoryIgnoreCase(category)
-        );
+        List<QuestionDto> list = QuestionMapper.toDTOList(questionRepository.findByCategoryIgnoreCase(category));
+        log.debug("[QUESTION] Fetched all questions, count={}", list.size());
+        return list;
     }
 
     // ================= QUIZ SUPPORT =================
 
     public List<Long> getQuestionIdsForQuiz(String category, Integer numQuestions) {
-        return questionRepository.findRandomQuestionsByCategory(category, numQuestions);
+        List<Long> ids =  questionRepository.findRandomQuestionsByCategory(category, numQuestions);
+        log.info("[QUESTION] Getting Question id for the Quiz: category={}, requested={}, found={}", category, numQuestions, ids.size());
+        return ids;
     }
 
     public List<QuestionWrapper> getQuestionsFromIds(List<Long> questionIds) {
 
         List<Questions> questions = questionRepository.findAllById(questionIds);
-
+        log.info("[QUESTION] Get questions from id");
         return QuestionMapper.toWrapperList(questions);
     }
 
