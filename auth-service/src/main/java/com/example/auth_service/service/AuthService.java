@@ -69,7 +69,18 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Default role
-        user.setRoles(UserRoles.PARTICIPANT);
+//        user.setRoles(UserRoles.PARTICIPANT);
+
+//        No more default role
+        UserRoles role = UserRoles.PARTICIPANT;
+        if (request.getRole() != null && !request.getRole().isBlank()){
+         try {
+             role = UserRoles.valueOf(request.getRole().toUpperCase());
+         }catch (IllegalArgumentException ex){
+             log.warn("[AUTH-SERVICE] Unknown role '{}', defaulting to PARTICIPANT", request.getRole());
+         }
+         }
+        user.setRoles(role);
 
         Users savedUser = userRepository.save(user);
         log.info("[AUTH-SERVICE] New user registered: username={}, role={}", savedUser.getUsername(), savedUser.getRoles());

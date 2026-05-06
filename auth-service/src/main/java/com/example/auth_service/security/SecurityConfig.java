@@ -41,21 +41,20 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Public
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/questions/generate",
-                                "/api/questions/fetch",
-                                "/api/questions/category",
-                                "/api/auth/internal/**")
-                        .permitAll()
-
-                        // Role based
-                        .requestMatchers("/api/quiz")
-                        .hasAnyAuthority("ADMIN", "CURATOR")
-
-                        .requestMatchers("/api/quiz/*/start",
-                                "/api/quiz/submit")
-                        .hasAuthority("PARTICIPANT")
+                        .requestMatchers("/api/auth/**").permitAll()
+//                                "/api/questions/generate",
+//                                "/api/questions/fetch",
+//                                "/api/questions/category",
+//                                "/api/auth/internal/**")
+//                        .permitAll()
+//
+//                        // Role based
+//                        .requestMatchers("/api/quiz")
+//                        .hasAnyAuthority("ADMIN", "CURATOR")
+//
+//                        .requestMatchers("/api/quiz/*/start",
+//                                "/api/quiz/submit")
+//                        .hasAuthority("PARTICIPANT")
 
                         .anyRequest().authenticated()
                 )
