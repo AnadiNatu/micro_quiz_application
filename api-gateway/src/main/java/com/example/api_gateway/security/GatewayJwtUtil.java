@@ -2,14 +2,12 @@ package com.example.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Component
 public class GatewayJwtUtil {
@@ -17,11 +15,11 @@ public class GatewayJwtUtil {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    private SecretKey getSigningKey(){
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Claims getClaims(String token){
+    public Claims validateToken(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -29,25 +27,25 @@ public class GatewayJwtUtil {
                 .getPayload();
     }
 
-    public boolean isTokenValid(String token){
+    public boolean isTokenValid(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-
+            validateToken(token);
             return true;
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return false;
         }
     }
 
-    public String getUsername(String token){
-        return getClaims(token).getSubject();
+    public String getUsername(String token) {
+        return validateToken(token).getSubject();
     }
 
-    @SuppressWarnings("unchecked")
-    public List<String> getRoles(String token){
-        return (List<String>) getClaims(token).get("roles");
+    public String extractRole(Claims claims) {
+        // auth-service signs tokens with claim key "role"
+        String role = claims.get("role", String.class);
+        if (role == null) {
+            role = claims.get("roles", String.class);
+        }
+        return role;
     }
 }
