@@ -30,6 +30,11 @@ public class GatewayJwtUtil {
     }
 
     public String extractRole(Claims claims){
-        return claims.get("roles" , String.class);
+        String role = claims.get("role", String.class);
+        if (role == null) {
+            // fallback for any token that used "roles"
+            role = claims.get("roles", String.class);
+        }
+        return role;
     }
 }

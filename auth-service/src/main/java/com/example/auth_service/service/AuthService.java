@@ -8,6 +8,7 @@ import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.security.JwtUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -47,9 +49,9 @@ public class AuthService {
 
             userRepository.save(admin);
 
-            System.out.println("✅ Admin created");
+            log.info("[AUTH-SERVICE] Admin account created");
         } else {
-            System.out.println("⚠️ Admin already exists");
+            log.debug("[AUTH-SERVICE] Admin account already exists, skipping creation");
         }
     }
 
@@ -57,19 +59,20 @@ public class AuthService {
     public SignUpResponseDTO signup(SignUpRequestDTO request) {
 
         if (userRepository.findByUsernameIgnoreCase(request.getUsername()).isPresent()) {
+            log.warn("[AUTH-SERVICE] Signup failed - username already exists: {}", request.getUsername());
             throw new RuntimeException("Username already exists");
         }
 
         Users user = UserMapper.toEntity(request);
 
-        // 🔐 Encode password
+        // Encode password
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Default role
         user.setRoles(UserRoles.PARTICIPANT);
 
         Users savedUser = userRepository.save(user);
-
+        log.info("[AUTH-SERVICE] New user registered: username={}, role={}", savedUser.getUsername(), savedUser.getRoles());
         return UserMapper.toSignUpResponse(savedUser);
     }
 
@@ -87,22 +90,26 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         String token = jwtUtils.generateToken(user);
-
+        log.info("[AUTH-SERVICE] Login successful: username={}, role={}", user.getUsername(), user.getRoles());
         return UserMapper.toLoginResponse(user, token);
     }
 
     // ================= GET USER =================
     public UserDto getUserById(Long id) {
+        log.debug("[AUTH-SERVICE] Getting User By Id");
         return userRepository.findById(id)
                 .map(UserMapper::toDTO)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll()
+        List<UserDto> users = userRepository.findAll()
                 .stream()
                 .map(UserMapper::toDTO)
                 .toList();
+
+        log.debug("[AUTH] Fetched all users, count={}", users.size());
+        return  users;
     }
 
     // ================= RESET PASSWORD =================
@@ -118,6 +125,7 @@ public class AuthService {
 
         // 👉 Hook your email service here
         System.out.println("Reset Token: " + token);
+        log.info("[AUTH-SERVICE] Password reset token generated for email={}", email);
     }
 
     public String resetPassword(String email, String token, String newPassword) {
@@ -134,6 +142,7 @@ public class AuthService {
 
         userRepository.save(user);
 
+        log.info("[AUTH] Password reset successful for email={}", email);
         return "Password reset successful";
     }
 
@@ -146,7 +155,7 @@ public class AuthService {
         user.setEnabled(false);
 
         Users saved = userRepository.save(user);
-
+        log.warn("[AUTH] User disabled: userId={}, username={}", id, saved.getUsername());
         return UserMapper.toDTO(saved);
     }
 }

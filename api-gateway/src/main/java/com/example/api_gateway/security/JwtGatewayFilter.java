@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,14 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtGatewayFilter implements GlobalFilter {
+public class JwtGatewayFilter implements GlobalFilter , Ordered {
 
     private final GatewayJwtUtil jwtUtil;
+
+    @Override
+    public int getOrder() {
+        return -1;
+    }
 
 //    private static final List<String> PUBLIC_PATHS = List.of(
 //            "/api/auth/login",
@@ -44,7 +50,18 @@ public class JwtGatewayFilter implements GlobalFilter {
             return chain.filter(exchange);
         }
 
-        // 🔒 3. Secure everything else
+        // ✅ 3. Internal notification endpoints are trusted (called by quiz-service)
+        if (path.startsWith("/api/notify/internal/")) {
+            return chain.filter(exchange);
+        }
+
+        // ✅ 4. Feign-internal question endpoints (called by quiz-service)
+        if (path.startsWith("/api/questions/generate") ||
+                path.startsWith("/api/questions/fetch")) {
+            return chain.filter(exchange);
+        }
+
+        // 🔒 5. Secure everything else
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -54,12 +71,11 @@ public class JwtGatewayFilter implements GlobalFilter {
         try {
             String token = authHeader.substring(7);
             Claims claims = jwtUtil.validateToken(token);
-
             String role = jwtUtil.extractRole(claims);
 
             ServerHttpRequest request = exchange.getRequest()
                     .mutate()
-                    .header("X-User-Role", role)
+                    .header("X-User-Role", role != null ? role : "")
                     .build();
 
             System.out.println("PATH: " + path);
@@ -73,11 +89,13 @@ public class JwtGatewayFilter implements GlobalFilter {
     }
     private Mono<Void> unauthorized(ServerWebExchange exchange , String message){
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+        exchange.getResponse().getHeaders().add("Content-Type", "application/json");
 
-        DataBuffer buffer = exchange.getResponse()
+        String body   = "{\"error\":\"" + message + "\"}";
+        DataBuffer buf = exchange.getResponse()
                 .bufferFactory()
-                .wrap(message.getBytes());
+                .wrap(body.getBytes());
 
-        return exchange.getResponse().writeWith(Mono.just(buffer));
+        return exchange.getResponse().writeWith(Mono.just(buf));
     }
 }
