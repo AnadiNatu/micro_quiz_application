@@ -40,28 +40,28 @@ public class JwtGatewayFilter implements GlobalFilter , Ordered {
 
         String path = exchange.getRequest().getURI().getPath();
 
-        // ✅ 1. Allow preflight FIRST
+        // 1. Allow preflight FIRST
         if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
             return chain.filter(exchange);
         }
 
-        // ✅ 2. Allow ALL auth endpoints
+        // 2. Allow ALL auth endpoints
         if (path.startsWith("/api/auth/")) {
             return chain.filter(exchange);
         }
 
-        // ✅ 3. Internal notification endpoints are trusted (called by quiz-service)
+        // 3. Internal notification endpoints are trusted (called by quiz-service)
         if (path.startsWith("/api/notify/internal/")) {
             return chain.filter(exchange);
         }
 
-        // ✅ 4. Feign-internal question endpoints (called by quiz-service)
+        // 4. Feign-internal question endpoints (called by quiz-service)
         if (path.startsWith("/api/questions/generate") ||
                 path.startsWith("/api/questions/fetch")) {
             return chain.filter(exchange);
         }
 
-        // 🔒 5. Secure everything else
+        // 5. Secure everything else
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

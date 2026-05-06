@@ -9,19 +9,19 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Component
 public class GatewayJwtUtil {
 
     @Value("${jwt.secret}")
-    private String SECRET;
+    private String jwtSecret;
 
     private SecretKey getSigningKey(){
-        byte[] keyBytes = SECRET.getBytes(StandardCharsets.UTF_8); // ✅
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Claims validateToken(String token){
+    public Claims getClaims(String token){
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -29,12 +29,25 @@ public class GatewayJwtUtil {
                 .getPayload();
     }
 
-    public String extractRole(Claims claims){
-        String role = claims.get("role", String.class);
-        if (role == null) {
-            // fallback for any token that used "roles"
-            role = claims.get("roles", String.class);
+    public boolean isTokenValid(String token){
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+        }catch (Exception ex){
+            return false;
         }
-        return role;
+    }
+
+    public String getUsername(String token){
+        return getClaims(token).getSubject();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getRoles(String token){
+        return (List<String>) getClaims(token).get("roles");
     }
 }
