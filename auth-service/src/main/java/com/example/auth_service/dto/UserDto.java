@@ -10,11 +10,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserDto {
     private Long id;
+    private Long authServiceId;
     private String username;
     private String email;
     private String phoneNumber;
     private String profilePicture;
     private String role;
+
+    private int questionsCreatedCount;
+    private int quizzesCreatedCount;
+    private int quizzesTakenCount;
 
     private boolean enabled;
     private boolean accountNonExpired;

@@ -1,6 +1,7 @@
 package com.example.quiz_service.service;
 
 import com.example.quiz_service.dto.applicationDTO.*;
+import com.example.quiz_service.dto.authDTO.UserStatSyncDTO;
 import com.example.quiz_service.dto.notificationDTO.QuizResultDTO;
 import com.example.quiz_service.dto.notificationDTO.QuizStatsDTO;
 import com.example.quiz_service.dto.notificationDTO.QuizSubmittedNotificationDTO;
@@ -45,10 +46,22 @@ public class QuizService {
             throw new RuntimeException("No questions available");
         }
 
+        UserResponseDTO creator = userClient.getUserById(dto.getId());
         Quiz quiz = QuizMapper.toEntity(dto, questionIds);
+
+//        Store creator name
+        quiz.setCreatorUsername(creator.getUsername());
+
         Quiz saved = quizRepository.save(quiz);
 
-        UserResponseDTO creator = userClient.getUserById(dto.getCreatedByUserId());
+        try {
+            userClient.syncStat(UserStatSyncDTO.builder()
+                    .authServiceId(dto.getCreatedByUserId())
+                    .statType("QUIZ_CREATED")
+                    .build());
+        } catch (Exception e) {
+            log.warn("[QUIZ] Failed to sync QUIZ_CREATED stat: {}", e.getMessage());
+        }
 
         return QuizMapper.toDTO(saved, creator, null);
     }
@@ -141,6 +154,16 @@ public class QuizService {
         // Enrich: get participant + curator info
         UserResponseDTO participant = userClient.getUserById(userId);
         UserResponseDTO curator     = userClient.getUserById(quiz.getCreatedByUserId());
+
+//        Increment the Quiz taken counter
+        try {
+            userClient.syncStat(UserStatSyncDTO.builder()
+                    .authServiceId(userId)
+                    .statType("QUIZ_TAKEN")
+                    .build());
+        } catch (Exception e) {
+            log.warn("[QUIZ] Failed to sync QUIZ_TAKEN stat: {}", e.getMessage());
+        }
 
         // Fire quiz-taken notification (best-effort)
         try {

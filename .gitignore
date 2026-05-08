@@ -12,9 +12,10 @@ logs/
 *.gz
 
 # ================= ENV =================
+# ================= DOCKER SECRETS =================
 .env
 .env.*
-*.env
+!.env.example
 
 # ================= SPRING CONFIG (CRITICAL) =================
 **/application.properties
@@ -69,4 +70,4 @@ node_modules/
 *.bak
 
 # ================= KEEP EXAMPLE =================
-!.env.example
+# !.env.example

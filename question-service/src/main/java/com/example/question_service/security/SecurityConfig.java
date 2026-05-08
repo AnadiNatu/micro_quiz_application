@@ -33,67 +33,6 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthFilter;
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//        return http
-//                .csrf(csrf -> csrf.disable())
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .authorizeHttpRequests(auth -> auth
-//
-//                        // 🔓 FEIGN + QUIZ ACCESS (VERY IMPORTANT)
-//                        .requestMatchers(
-//                                "/api/questions/generate",
-//                                "/api/questions/fetch",
-//                                "/api/questions/category"
-//                        ).permitAll()
-//
-//                        //OPTIONAL (frontend viewing)
-//                        .requestMatchers("/api/questions", "/api/questions/category/**")
-//                        .permitAll()
-//
-//                        // CREATE / ADMIN
-//                        .requestMatchers("/api/questions")
-//                        .hasAnyAuthority(UserRoles.ADMIN.name(), UserRoles.CURATOR.name())
-//
-//                        .anyRequest().authenticated()
-//                )
-//                .sessionManagement(manager ->
-//                        manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authenticationProvider(authenticationProvider())
-//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//    }
-
-//    Updated light weight security filter
-//@Bean
-//public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//
-//    return http
-//            .csrf(csrf -> csrf.disable())
-//            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//            .authorizeHttpRequests(auth -> auth
-//
-//                    // Public
-//                    .requestMatchers("/api/questions/generate",
-//                            "/api/questions/fetch",
-//                            "/api/questions/category")
-//                    .permitAll()
-//
-//                    // Role based
-//                    .requestMatchers("/api/quiz")
-//                    .hasAnyAuthority("ADMIN", "CURATOR")
-//
-//                    .requestMatchers("/api/quiz/*/start",
-//                            "/api/quiz/submit")
-//                    .hasAuthority("PARTICIPANT")
-//
-//                    .anyRequest().authenticated()
-//            )
-//            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//            .build();
-//}
-
 //    Light weight security config with pre authorize attribute annotations
 @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

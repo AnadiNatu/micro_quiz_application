@@ -32,5 +32,9 @@ public class Quiz {
     @Column(name = "user_id")
     private List<Long> participantIds;
 
+    @Column(name = "created_by_user_id")
     private Long createdByUserId;
+
+    @Column(name = "creator_username")
+    private String creatorUsername;
 }

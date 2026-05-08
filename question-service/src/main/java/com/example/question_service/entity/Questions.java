@@ -36,4 +36,13 @@ public class Questions {
     private String option2;
     private String option3;
     private String option4;
+
+    @Column(name = "creator_auth_service_id")
+    private Long creatorAuthServiceId;
+
+    @Column(name = "creator_username")
+    private String creatorUsername;
+
+    @Column(name = "creator_role")
+    private String creatorRole;
 }

@@ -19,4 +19,8 @@ public class CreateQuestionDto {
     private String option2;
     private String option3;
     private String option4;
+
+    private Long creatorAuthServiceId;
+    private String creatorUsername;
+    private String creatorRole;
 }

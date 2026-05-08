@@ -47,8 +47,10 @@ public class AuthService {
             admin.setRoles(UserRoles.ADMIN);
             admin.setEnabled(true);
 
-            userRepository.save(admin);
+            Users saved = userRepository.save(admin);
 
+            saved.setAuthServiceId(saved.getId());
+            userRepository.save(saved);
             log.info("[AUTH-SERVICE] Admin account created");
         } else {
             log.debug("[AUTH-SERVICE] Admin account already exists, skipping creation");
@@ -83,6 +85,10 @@ public class AuthService {
         user.setRoles(role);
 
         Users savedUser = userRepository.save(user);
+
+        savedUser.setAuthServiceId(savedUser.getId());
+        userRepository.save(savedUser);
+
         log.info("[AUTH-SERVICE] New user registered: username={}, role={}", savedUser.getUsername(), savedUser.getRoles());
         return UserMapper.toSignUpResponse(savedUser);
     }
@@ -113,14 +119,41 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public List<UserDto> getAllUsers() {
-        List<UserDto> users = userRepository.findAll()
-                .stream()
-                .map(UserMapper::toDTO)
-                .toList();
+//    public List<UserDto> getAllUsers() {
+//        List<UserDto> users = userRepository.findAll()
+//                .stream()
+//                .map(UserMapper::toDTO)
+//                .toList();
+//
+//        log.debug("[AUTH] Fetched all users, count={}", users.size());
+//        return  users;
+//    }
 
-        log.debug("[AUTH] Fetched all users, count={}", users.size());
-        return  users;
+//    Feign lookup by authServiceId
+public UserDto getUserByAuthServiceId(Long authServiceId) {
+    return userRepository.findByAuthServiceId(authServiceId)
+            .map(UserMapper::toDTO)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found for authServiceId=" + authServiceId));
+}
+
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream().map(UserMapper::toDTO).toList();
+    }
+
+    // Stat sync - called by {quiz/question} service
+
+    public void incrementStat(UserStatSyncDTO dto){
+        Users user = userRepository.findByAuthServiceId(dto.getAuthServiceId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        switch (dto.getStatType()) {
+            case "QUESTION_CREATED" -> user.setQuestionsCreatedCount(user.getQuestionsCreatedCount() + 1);
+            case "QUIZ_CREATED" -> user.setQuizzesCreatedCount(user.getQuizzesCreatedCount() + 1);
+            case "QUIZ_TAKEN" -> user.setQuizzesTakenCount(user.getQuizzesTakenCount() + 1);
+            default -> log.warn("[AUTH] Unknown statType={}", dto.getStatType());
+        }
+
+        userRepository.save(user);
+        log.info("[AUTH] Stat synced: authServiceId={}, statType={}", dto.getAuthServiceId(), dto.getStatType());
     }
 
     // ================= RESET PASSWORD =================

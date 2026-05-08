@@ -12,7 +12,7 @@ import java.util.List;
 @FeignClient(name = "question-service")
 public interface QuestionClient {
     @GetMapping("/api/questions/generate")
-    List<Long> generateQuestions(@RequestParam String category , @RequestParam Integer numQuestion);
+    List<Long> generateQuestions(@RequestParam String category , @RequestParam Integer numQuestions);
 
     @PostMapping("/api/questions/fetch")
     List<QuestionResponseDTO> getQuestionsByIds(@RequestBody List<Long> ids);

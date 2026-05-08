@@ -23,6 +23,9 @@ public class QuestionMapper {
                 .option2(question.getOption2())
                 .option3(question.getOption3())
                 .option4(question.getOption4())
+                .creatorAuthServiceId(question.getCreatorAuthServiceId())
+                .creatorUsername(question.getCreatorUsername())
+                .creatorRole(question.getCreatorRole())
                 .build();
     }
 
@@ -46,6 +49,9 @@ public class QuestionMapper {
                 .option2(dto.getOption2())
                 .option3(dto.getOption3())
                 .option4(dto.getOption4())
+                .creatorAuthServiceId(dto.getCreatorAuthServiceId())
+                .creatorUsername(dto.getCreatorUsername())
+                .creatorRole(dto.getCreatorRole())
                 .build();
     }
 
@@ -55,6 +61,7 @@ public class QuestionMapper {
         if (question == null) return null;
 
         return new QuestionWrapper(
+                question.getId(),
                 question.getQuestionTitle(),
                 question.getOption1(),
                 question.getOption2(),
@@ -63,42 +70,35 @@ public class QuestionMapper {
         );
     }
 
-    public static List<QuestionWrapper> toWrapperList(List<Questions> questions) {
-        return questions.stream()
-                .map(QuestionMapper::toWrapper)
-                .collect(Collectors.toList());
+    public static List<QuestionWrapper> toWrapperList(List<Questions> list) {
+        return list.stream().map(q -> QuestionWrapper.builder()
+                .id(q.getId())
+                .questionTitle(q.getQuestionTitle())
+                .option1(q.getOption1())
+                .option2(q.getOption2())
+                .option3(q.getOption3())
+                .option4(q.getOption4())
+                .build()
+        ).toList();
     }
 
     // ================= EVALUATION =================
-
-    public static ResponseEvaluationDto evaluateResponse(Questions question, ResponseDto response) {
-
-        return new ResponseEvaluationDto(
-                question.getQuestionTitle(),
-                question.getRightAnswer(),
-                response.getSelectedAnswer()
-        );
-    }
-
     public static List<ResponseEvaluationDto> evaluateResponses(
-            List<Questions> questions,
-            List<ResponseDto> responses
-    ) {
+            List<Questions> questions, List<ResponseDto> responses) {
 
-        return questions.stream().map(question -> {
-
-            String selectedAnswer = responses.stream()
-                    .filter(r -> r.getQuestionTitle().equals(question.getQuestionTitle()))
-                    .map(ResponseDto::getSelectedAnswer)
+        return responses.stream().map(r -> {
+            Questions q = questions.stream()
+                    .filter(x -> x.getQuestionTitle().equalsIgnoreCase(r.getQuestionTitle()))
                     .findFirst()
-                    .orElse(null);
+                    .orElseThrow(() -> new RuntimeException("Question not found"));
 
-            return new ResponseEvaluationDto(
-                    question.getQuestionTitle(),
-                    question.getRightAnswer(),
-                    selectedAnswer
-            );
+            boolean correct = r.getSelectedAnswer().equalsIgnoreCase(q.getRightAnswer());
 
-        }).collect(Collectors.toList());
+            return ResponseEvaluationDto.builder()
+                    .questionTitle(q.getQuestionTitle())
+                    .selectedAnswer(r.getSelectedAnswer())
+                    .correctAnswer(q.getRightAnswer())
+                    .build();
+        }).toList();
     }
 }

@@ -15,68 +15,9 @@ public class UserMapper {
 
     // ================= ENTITY → DTO =================
 
-    public static UserDto toDTO(Users user) {
-        if (user == null) return null;
-
-        return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .profilePicture(user.getProfilePicture())
-                .role(user.getRoles() != null ? user.getRoles().name() : null)
-                .enabled(user.isEnabled())
-                .accountNonExpired(user.isAccountNonExpired())
-                .accountNonLocked(user.isAccountNonLocked())
-                .credentialsNonExpired(user.isCredentialsNonExpired())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
-                .build();
-    }
-
-    public static SignUpResponseDTO toSignUpResponse(Users user) {
-        if (user == null) return null;
-
-        return SignUpResponseDTO.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRoles() != null ? user.getRoles().name() : null)
-                .enabled(user.isEnabled())
-                .build();
-    }
-
-    public static LoginResponseDTO toLoginResponse(Users user, String token) {
-        if (user == null) return null;
-
-        return LoginResponseDTO.builder()
-                .token(token)
-                .username(user.getUsername())
-                .role(user.getRoles() != null ? user.getRoles().name() : null)
-                .build();
-    }
 
     // ================= DTO → ENTITY =================
 
-    public static Users toEntity(SignUpRequestDTO dto) {
-        if (dto == null) return null;
-
-        Users user = new Users();
-        user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword()); // ⚠️ encode in service layer
-        user.setEmail(dto.getEmail());
-        user.setPhoneNumber(dto.getPhoneNumber());
-
-        user.setEnabled(true);
-        user.setAccountNonExpired(true);
-        user.setAccountNonLocked(true);
-        user.setCredentialsNonExpired(true);
-
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-
-        return user;
-    }
 
     public static Users toEntity(UserDto dto) {
         if (dto == null) return null;
@@ -123,5 +64,67 @@ public class UserMapper {
         user.setCredentialsNonExpired(dto.isCredentialsNonExpired());
 
         user.setUpdatedAt(LocalDateTime.now());
+    }
+
+
+    public static Users toEntity(SignUpRequestDTO dto) {
+        Users user = new Users();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setPassword(dto.getPassword()); // raw — encoded in service
+
+        user.setEnabled(true);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setCredentialsNonExpired(true);
+
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        return user;
+    }
+
+    // Map entity to full UserDto including synced counters
+    public static UserDto toDTO(Users user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .authServiceId(user.getAuthServiceId()) // expose global sync ID
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRoles() != null ? user.getRoles().name() : null)
+                .phoneNumber(user.getPhoneNumber())
+                .profilePicture(user.getProfilePicture())
+                .questionsCreatedCount(user.getQuestionsCreatedCount())
+                .quizzesCreatedCount(user.getQuizzesCreatedCount())
+                .quizzesTakenCount(user.getQuizzesTakenCount())
+                .enabled(user.isEnabled())
+                .accountNonExpired(user.isAccountNonExpired())
+                .accountNonLocked(user.isAccountNonLocked())
+                .credentialsNonExpired(user.isCredentialsNonExpired())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    public static SignUpResponseDTO toSignUpResponse(Users user) {
+        return SignUpResponseDTO.builder()
+                .id(user.getId())
+                .authServiceId(user.getAuthServiceId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRoles() != null ? user.getRoles().name() : null)
+                .build();
+    }
+
+    public static LoginResponseDTO toLoginResponse(Users user, String token) {
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .authServiceId(user.getAuthServiceId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRoles() != null ? user.getRoles().name() : null)
+                .token(token)
+                .build();
     }
 }

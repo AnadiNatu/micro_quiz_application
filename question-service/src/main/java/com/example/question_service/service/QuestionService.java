@@ -1,8 +1,10 @@
 package com.example.question_service.service;
 
 import com.example.question_service.dto.applicationDTO.*;
+import com.example.question_service.dto.authDTO.UserStatSyncDTO;
 import com.example.question_service.dto.quizDTO.QuestionResponseDTO;
 import com.example.question_service.entity.Questions;
+import com.example.question_service.feign.AuthServiceClient;
 import com.example.question_service.mapper.QuestionMapper;
 import com.example.question_service.repository.QuestionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +26,27 @@ import java.util.List;
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
-
+    private final AuthServiceClient authServiceClient;
     // ================= CREATE =================
 
     public QuestionDto addQuestion(CreateQuestionDto dto) {
 
         Questions question = QuestionMapper.toEntity(dto);
         Questions saved = questionRepository.save(question);
-        log.info("[QUESTION] Question saved: id={}, category={}", saved.getId(), saved.getCategory());
+
+        if (saved.getCreatorAuthServiceId() != null){
+            try{
+                authServiceClient.syncStat(UserStatSyncDTO.builder()
+                                .authServiceId(saved.getCreatorAuthServiceId())
+                                .statType("QUESTION_CREATED")
+                                .build());
+                log.info("[QUESTION-SERVICE] Synced QUESTION_CREATED for authServiceID : {}" , saved.getCreatorAuthServiceId());
+            }catch (Exception ex){
+                log.warn("[QUESTION-SERVICE] Failed to sync QUESTION_CREATED stat : {}" , ex.getMessage());
+            }
+        }
+
+        log.info("[QUESTION-SERVICE] Question saved: id={}, category={}", saved.getId(), saved.getCategory());
         return QuestionMapper.toDTO(saved);
     }
 

@@ -40,7 +40,8 @@ public class JwtGatewayFilter implements GlobalFilter, Ordered {
         }
 
         // 3. Public: feign/internal endpoints
-        if (path.startsWith("/api/notify/internal/")
+        if (path.startsWith("/api/auth/internal/")
+                || path.startsWith("/api/notify/internal/")
                 || path.startsWith("/api/questions/generate")
                 || path.startsWith("/api/questions/fetch")) {
             return chain.filter(exchange);

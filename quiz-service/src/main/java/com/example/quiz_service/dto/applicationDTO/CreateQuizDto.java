@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateQuizDto {
+    private Long id;
     private String title;
     private String category;
     private String difficultyLevel;

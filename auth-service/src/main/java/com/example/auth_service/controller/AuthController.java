@@ -95,4 +95,19 @@ public class AuthController {
         log.warn("[AUTH - FEIGN] Notification Service");
         return ResponseEntity.ok(authService.getUserById(id));
     }
+
+    // FEIGN INTERNAL -  fetch user (Quiz/Question Service)
+    @GetMapping("/internal/{authServiceId}")
+    public ResponseEntity<UserDto> getUserByAuthServiceId(@PathVariable Long authServiceId) {
+        log.debug("[AUTH-FEIGN] getUserByAuthServiceId={}", authServiceId);
+        return ResponseEntity.ok(authService.getUserByAuthServiceId(authServiceId));
+    }
+
+    // FEIGN INTERNAL - increment a user stat counter (From Question/Quiz Service)
+    @PostMapping("/internal/sync-stat")
+    public ResponseEntity<Void> syncStat(@RequestBody UserStatSyncDTO dto) {
+        log.debug("[AUTH-FEIGN] syncStat authServiceId={}, type={}", dto.getAuthServiceId(), dto.getStatType());
+        authService.incrementStat(dto);
+        return ResponseEntity.ok().build();
+    }
 }

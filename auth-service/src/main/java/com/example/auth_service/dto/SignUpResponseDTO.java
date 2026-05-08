@@ -9,6 +9,7 @@ import lombok.*;
 public class SignUpResponseDTO {
 
     private Long id;
+    private Long authServiceId;
     private String username;
     private String email;
     private String role;
