@@ -46,7 +46,7 @@ public class QuizService {
             throw new RuntimeException("No questions available");
         }
 
-        UserResponseDTO creator = userClient.getUserById(dto.getId());
+        UserResponseDTO creator = userClient.getUserById(dto.getCreatedByUserId());
         Quiz quiz = QuizMapper.toEntity(dto, questionIds);
 
 //        Store creator name
