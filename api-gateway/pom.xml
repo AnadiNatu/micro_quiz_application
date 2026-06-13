@@ -96,6 +96,7 @@
     </dependencies>
 
     <build>
+        <finalName>api-gateway</finalName>
         <plugins>
 
             <!-- 🔥 Spring Boot Plugin -->

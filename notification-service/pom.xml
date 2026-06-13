@@ -125,6 +125,7 @@
 
     <!-- 🔧 BUILD -->
     <build>
+        <finalName>notification-service</finalName>
         <plugins>
 
             <!-- 🚀 Spring Boot -->

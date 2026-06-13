@@ -129,6 +129,7 @@
 
     <!-- 🔧 BUILD -->
     <build>
+        <finalName>question-service</finalName>
         <plugins>
 
             <!-- 🚀 Spring Boot -->

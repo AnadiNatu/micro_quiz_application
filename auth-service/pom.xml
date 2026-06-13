@@ -152,6 +152,7 @@
 
     <!-- 🔧 BUILD -->
     <build>
+        <finalName>auth-service-quiz</finalName>
         <plugins>
 
             <!-- 🚀 Spring Boot -->

@@ -23,8 +23,8 @@ public class OpenAIService {
     private final OpenAIClient openAIClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${openai.api.key}")
-    private String apiKey;
+//    @Value("${openai.api.key}")
+//    private String apiKey;
 
     public List<AiGeneratedQuestionDTO> generatePreview(AiQuestionGenerateRequest req){
         String prompt = buildPrompt(req.getTopic() , req.getCategory() , req.getDifficulty() , req.getCount());
@@ -71,7 +71,7 @@ public class OpenAIService {
 
         log.info("[AI] Calling Open API ....");
 
-        OpenAIResponse response = openAIClient.generate("Bearer " + apiKey , request);
+        OpenAIResponse response = openAIClient.generate("Bearer " + "${openAI API key}" , request);
 
         String content = response.getChoices().get(0).getMessage().getContent();
 

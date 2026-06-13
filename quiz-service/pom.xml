@@ -129,6 +129,7 @@
 
     <!-- 🔧 BUILD -->
     <build>
+        <finalName>quiz-service</finalName>
         <plugins>
 
             <!-- 🚀 Spring Boot -->

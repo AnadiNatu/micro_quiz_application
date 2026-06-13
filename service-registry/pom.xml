@@ -80,6 +80,7 @@ THis error was coming because of the old/incorrect version of <parent>  -> Solut
 	</dependencyManagement>
 
 	<build>
+		<finalName>service-registry</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
