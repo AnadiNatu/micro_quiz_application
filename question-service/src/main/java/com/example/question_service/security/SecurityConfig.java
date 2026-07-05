@@ -46,7 +46,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                     // 🔓 FEIGN CALLS
                     .requestMatchers(
                             "/api/questions/generate",
-                            "/api/questions/fetch"
+                            "/api/questions/fetch",
+                            "/internal/users/sync"
                     ).permitAll()
 
                     // 🔒 EVERYTHING ELSE

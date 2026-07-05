@@ -31,20 +31,26 @@ public class QuestionService {
 
     public QuestionDto addQuestion(CreateQuestionDto dto) {
 
+        // Validate creator id is present and is the auth-service id, not a local FK
+        if (dto.getCreatorAuthServiceId() == null) {
+            throw new IllegalArgumentException(
+                    "creatorAuthServiceId is required and must be the user's ID in auth-service");
+        }
+
         Questions question = QuestionMapper.toEntity(dto);
         Questions saved = questionRepository.save(question);
 
-        if (saved.getCreatorAuthServiceId() != null){
+//        if (saved.getCreatorAuthServiceId() != null){
             try{
                 authServiceClient.syncStat(UserStatSyncDTO.builder()
                                 .authServiceId(saved.getCreatorAuthServiceId())
                                 .statType("QUESTION_CREATED")
                                 .build());
                 log.info("[QUESTION-SERVICE] Synced QUESTION_CREATED for authServiceID : {}" , saved.getCreatorAuthServiceId());
+
             }catch (Exception ex){
                 log.warn("[QUESTION-SERVICE] Failed to sync QUESTION_CREATED stat : {}" , ex.getMessage());
             }
-        }
 
         log.info("[QUESTION-SERVICE] Question saved: id={}, category={}", saved.getId(), saved.getCategory());
         return QuestionMapper.toDTO(saved);

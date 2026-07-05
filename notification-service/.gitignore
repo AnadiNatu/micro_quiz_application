@@ -41,10 +41,16 @@ Thumbs.db
 *.env
 
 # ================= APPLICATION CONFIG (VERY IMPORTANT) =================
-src/main/resources/application.properties
-src/main/resources/application.yml
-src/main/resources/application-*.properties
-src/main/resources/application-*.yml
+# ================= SPRING CONFIG (CRITICAL) =================
+# Block the LOCAL properties file (has real secrets)
+**/application.properties
+**/application.yml
+**/application-local.properties
+**/application-local.yml
+
+# ✅ ALLOW docker and prod profiles — they only use ${ENV_VAR} placeholders
+!**/application-docker.properties
+!**/application-prod.properties
 
 # ================= LOGS =================
 *.log

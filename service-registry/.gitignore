@@ -4,6 +4,17 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# ================= SPRING CONFIG (CRITICAL) =================
+# Block the LOCAL properties file (has real secrets)
+**/application.properties
+**/application.yml
+**/application-local.properties
+**/application-local.yml
+
+# ✅ ALLOW docker and prod profiles — they only use ${ENV_VAR} placeholders
+!**/application-docker.properties
+!**/application-prod.properties
+
 ### STS ###
 .apt_generated
 .classpath

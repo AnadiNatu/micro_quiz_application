@@ -106,7 +106,8 @@ public class SecurityConfig {
 
                         // optional health
                         .requestMatchers("/actuator/**").permitAll()
-
+                        .requestMatchers("/api/quiz/internal/**").permitAll()
+                        .requestMatchers("/internal/users/sync").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

@@ -95,12 +95,13 @@ public class QuizService {
     // ================= GET ALL QUIZ BY CREATOR =================
     public List<QuizDTO> getQuizzesByCreator(Long userId) {
 
-        return quizRepository.findByCreatedByUserId(userId)
-                .stream()
-                .map(q -> {
-                    UserResponseDTO creator = userClient.getUserById(userId);
-                    return QuizMapper.toDTO(q, creator, null);
-                })
+        List<Quiz> quizzes = quizRepository.findByCreatedByUserId(userId);
+        if (quizzes.isEmpty()) return List.of();
+
+        UserResponseDTO creator = userClient.getUserById(userId);
+
+        return quizzes.stream()
+                .map(q -> QuizMapper.toDTO(q,creator,null))
                 .toList();
     }
 
@@ -151,9 +152,17 @@ public class QuizService {
         quiz.getParticipantIds().add(userId);
         quizRepository.save(quiz);
 
-        // Enrich: get participant + curator info
+        // Fetch user details for notification (best-effort, after the save so
+        // a Feign failure here does not roll back the participation record)
         UserResponseDTO participant = userClient.getUserById(userId);
         UserResponseDTO curator     = userClient.getUserById(quiz.getCreatedByUserId());
+
+        try {
+            participant = userClient.getUserById(userId);
+            curator = userClient.getUserById(quiz.getCreatedByUserId());
+        }catch (Exception ex){
+            log.warn("[QUIZ] Could not fetch user details for notification: {}", ex.getMessage());
+        }
 
 //        Increment the Quiz taken counter
         try {
@@ -166,25 +175,26 @@ public class QuizService {
         }
 
         // Fire quiz-taken notification (best-effort)
-        try {
-            QuizTakenNotificationDTO notifDto = QuizTakenNotificationDTO.builder()
-                    .quizId(quiz.getId())
-                    .quizTitle(quiz.getTitle())
-                    .category(quiz.getCategory())
-                    .difficultyLevel(quiz.getDifficultyLevel())
-                    .participantId(userId)
-                    .participantUsername(participant.getUsername())
-                    .participantEmail(participant.getEmail())
-                    .curatorId(quiz.getCreatedByUserId())
-                    .curatorUsername(curator.getUsername())
-                    .curatorEmail(curator.getEmail())
-                    .build();
+        if (participant != null && curator != null) {
+            try {
+                QuizTakenNotificationDTO notifDto = QuizTakenNotificationDTO.builder()
+                        .quizId(quiz.getId())
+                        .quizTitle(quiz.getTitle())
+                        .category(quiz.getCategory())
+                        .difficultyLevel(quiz.getDifficultyLevel())
+                        .participantId(userId)
+                        .participantUsername(participant.getUsername())
+                        .participantEmail(participant.getEmail())
+                        .curatorId(quiz.getCreatedByUserId())
+                        .curatorUsername(curator.getUsername())
+                        .curatorEmail(curator.getEmail())
+                        .build();
 
-            notificationClient.notifyQuizTaken(notifDto);
-        } catch (Exception e) {
-            log.warn("⚠️ Failed to send quiz-taken notification: {}", e.getMessage());
+                notificationClient.notifyQuizTaken(notifDto);
+            } catch (Exception e) {
+                log.warn("⚠️ Failed to send quiz-taken notification: {}", e.getMessage());
+            }
         }
-
         return questionClient.getQuestionsByIds(quiz.getQuestionIds());
     }
 
@@ -198,6 +208,8 @@ public class QuizService {
 
         // ── Score calculation ──
         int correct = 0;
+        int answered = request.getResponses().size();
+
         for (ResponseDTO response : request.getResponses()) {
             QuestionResponseDTO q = questions.stream()
                     .filter(x -> x.getId().equals(response.getQuestionId()))
@@ -210,7 +222,8 @@ public class QuizService {
         }
 
         int total = quiz.getQuestionIds().size();
-        int incorrect = total - correct;
+        int incorrect = answered - correct;
+        int skipped = total - answered;
         double percentage = (total > 0) ? (correct * 100.0) / total : 0;
 
         UserResponseDTO participant = userClient.getUserById(request.getUserId());
@@ -235,6 +248,11 @@ public class QuizService {
                     .build();
 
             quizResultRepository.save(result);
+            log.info("[QUIZ] Result saved — quizId={} userId={} correct={}/{} ({:.1f}%)",
+                    quiz.getId(), request.getUserId(), correct, total, percentage);
+        }else {
+            log.warn("[QUIZ] Duplicate submit ignored — quizId={} userId={}",
+                    quiz.getId(), request.getUserId());
         }
 
         // Fire quiz-submitted notification (best-effort)
@@ -326,10 +344,22 @@ public List<QuizResultDTO> getResultsByQuiz(Long quizId) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        QuizDTO dto = QuizMapper.toDTO(quiz, null, null);
+        UserResponseDTO creator =  null;
 
+        try{
+            creator = userClient.getUserById(quiz.getCreatedByUserId());
+        }catch (Exception ex){
+            log.warn("[QUIZ] Could not fetch creator during delete — using stored username: {}", ex.getMessage());
+            // Fall back to the denormalised username stored on the quiz entity itself
+            creator = UserResponseDTO.builder()
+                    .id(quiz.getCreatedByUserId())
+                    .username(quiz.getCreatorUsername())
+                    .build();
+        }
+
+        QuizDTO dto = QuizMapper.toDTO(quiz, creator, null);
         quizRepository.delete(quiz);
-
+        log.info("[QUIZ] Quiz deleted — id={} title={}", id, quiz.getTitle());
         return dto; // 🔥 needed for @PostAuthorize
     }
 
