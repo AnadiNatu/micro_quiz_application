@@ -27,6 +27,7 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final AuthServiceClient authServiceClient;
+    private final QuestionMapper questionMapper;
     // ================= CREATE =================
 
     public QuestionDto addQuestion(CreateQuestionDto dto) {
@@ -66,10 +67,21 @@ public class QuestionService {
 
     // ================= FILTER =================
 
-    public List<QuestionDto> getQuestionsByCategory(String category) {
-        List<QuestionDto> list = QuestionMapper.toDTOList(questionRepository.findByCategoryIgnoreCase(category));
-        log.debug("[QUESTION] Fetched all questions, count={}", list.size());
-        return list;
+    public List<QuestionResponseDTO> getQuestionsByCategory(String category) {
+
+        List<Questions> questions =
+                questionRepository.findByCategoryIgnoreCase(category);
+
+        List<QuestionResponseDTO> response =
+                QuestionMapper.toQuestionResponse(questions);
+
+        log.debug(
+                "[QUESTION] Fetched {} questions for category={}",
+                response.size(),
+                category
+        );
+
+        return response;
     }
 
     // ================= QUIZ SUPPORT =================
@@ -80,11 +92,13 @@ public class QuestionService {
         return ids;
     }
 
-    public List<QuestionWrapper> getQuestionsFromIds(List<Long> questionIds) {
+    public List<QuestionResponseDTO> getQuestionsFromIds(List<Long> questionIds) {
 
         List<Questions> questions = questionRepository.findAllById(questionIds);
-        log.info("[QUESTION] Get questions from id");
-        return QuestionMapper.toWrapperList(questions);
+
+        log.info("[QUESTION] Fetch questions by ids: count={}", questionIds.size());
+
+        return QuestionMapper.toQuestionResponse(questions);
     }
 
     // ================= EVALUATION =================
@@ -136,21 +150,21 @@ public List<QuestionResponseDTO> getQuestionsByIds(List<Long> ids) {
             .toList();
 }
 
-    public List<QuestionResponseDTO> getQuestionsByCategoryFeign(String category) {
-
-        return questionRepository.findByCategoryIgnoreCase(category)
-                .stream()
-                .map(q -> QuestionResponseDTO.builder()
-                        .id(q.getId())
-                        .questionTitle(q.getQuestionTitle())
-                        .option1(q.getOption1())
-                        .option2(q.getOption2())
-                        .option3(q.getOption3())
-                        .option4(q.getOption4())
-                        .rightAnswer(q.getRightAnswer())
-                        .build())
-                .toList();
-    }
+//    public List<QuestionResponseDTO> getQuestionsByCategoryFeign(String category) {
+//
+//        return questionRepository.findByCategoryIgnoreCase(category)
+//                .stream()
+//                .map(q -> QuestionResponseDTO.builder()
+//                        .id(q.getId())
+//                        .questionTitle(q.getQuestionTitle())
+//                        .option1(q.getOption1())
+//                        .option2(q.getOption2())
+//                        .option3(q.getOption3())
+//                        .option4(q.getOption4())
+//                        .rightAnswer(q.getRightAnswer())
+//                        .build())
+//                .toList();
+//    }
 
     public QuestionDto deleteQuestion(Long id) {
 
@@ -162,5 +176,18 @@ public List<QuestionResponseDTO> getQuestionsByIds(List<Long> ids) {
         questionRepository.delete(question);
 
         return dto;
+    }
+
+    public List<String> getAllCategories() {return questionRepository.findAllDistinctCategories();}
+
+    // QUESTION BY CREATOR
+    public List<QuestionDto> getQuestionsByCreator(Long creatorAuthServiceId){
+
+        return questionRepository
+                .findByCreatorAuthServiceIdOrderByIdDesc(creatorAuthServiceId)
+                .stream()
+                .map(QuestionMapper::toDTO)
+                .toList();
+
     }
 }
