@@ -279,7 +279,9 @@ public class QuizService {
                     .percentage(percentage)
                     .build();
 
-            quizResultRepository.save(result);
+            result = quizResultRepository.save(result);
+
+            log.info("Quiz Result Saved : {}", result.getId());
             log.info("[QUIZ] Result saved — quizId={} userId={} correct={}/{} ({:.1f}%)",
                     quiz.getId(), request.getUserId(), correct, total, percentage);
         }else if (!testUser) {

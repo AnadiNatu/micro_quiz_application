@@ -110,7 +110,7 @@ public class QuestionService {
         for (ResponseDto response : responses) {
 
             Questions question = questionRepository
-                    .findByQuestionTitle(response.getQuestionTitle())
+                    .findById(response.getQuestionId())
                     .orElseThrow(() -> new RuntimeException("Question not found"));
 
             if (response.getSelectedAnswer().equalsIgnoreCase(question.getRightAnswer())) {
@@ -121,15 +121,38 @@ public class QuestionService {
         return score;
     }
 
-    public List<ResponseEvaluationDto> evaluateResponses(List<ResponseDto> responses) {
+    public List<ResponseEvaluationDto> evaluateResponses(
+            List<ResponseDto> responses) {
 
-        List<Questions> questions = responses.stream()
-                .map(r -> questionRepository
-                        .findByQuestionTitle(r.getQuestionTitle())
-                        .orElseThrow(() -> new RuntimeException("Question not found")))
-                .toList();
+        List<ResponseEvaluationDto> evaluation = new ArrayList<>();
 
-        return QuestionMapper.evaluateResponses(questions, responses);
+        for(ResponseDto response : responses){
+
+            Questions question =
+                    questionRepository.findById(response.getQuestionId())
+                            .orElseThrow(() ->
+                                    new RuntimeException(
+                                            "Question not found : "
+                                                    + response.getQuestionId()));
+
+            evaluation.add(
+
+                    ResponseEvaluationDto.builder()
+
+                            .questionTitle(question.getQuestionTitle())
+
+                            .selectedAnswer(response.getSelectedAnswer())
+
+                            .correctAnswer(question.getRightAnswer())
+
+                            .build()
+
+            );
+
+        }
+
+        return evaluation;
+
     }
 
 //    Feign Functionality

@@ -92,7 +92,7 @@ public class QuestionMapper {
 
         return responses.stream().map(r -> {
             Questions q = questions.stream()
-                    .filter(x -> x.getQuestionTitle().equalsIgnoreCase(r.getQuestionTitle()))
+                    .filter(x -> x.getId() == (r.getQuestionId()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Question not found"));
 
