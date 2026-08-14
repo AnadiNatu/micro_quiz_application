@@ -1,5 +1,7 @@
 package com.example.quiz_service.config;
 
+import com.example.quiz_service.dto.notificationDTO.QuizSubmittedNotificationMessage;
+import com.example.quiz_service.dto.notificationDTO.QuizTakenNotificationMessage;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -11,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
 
 @Configuration
 public class RabbitMQConfig {
@@ -23,6 +24,9 @@ public class RabbitMQConfig {
 
     public static final String QUIZ_SUBMITTED_QUEUE = "quiz.submitted.queue";
     public static final String QUIZ_SUBMITTED_ROUTING_KEY = "quiz.submitted";
+
+    public static final String QUIZ_STAT_SYNC_QUEUE = "quiz.stat.sync.queue";
+    public static final String QUIZ_STAT_SYNC_ROUTING_KEY = "quiz.stat.sync";
 
     @Bean
     public TopicExchange quizNotificationExchange() {

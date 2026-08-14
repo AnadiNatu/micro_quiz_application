@@ -1,6 +1,9 @@
-package com.example.quiz_service.dto.notificationDTO;
+package com.example.quiz_service.kafka;
 
 import com.example.quiz_service.config.RabbitMQConfig;
+import com.example.quiz_service.dto.leaderboardDTO.QuizStatSyncMessage;
+import com.example.quiz_service.dto.notificationDTO.QuizSubmittedNotificationMessage;
+import com.example.quiz_service.dto.notificationDTO.QuizTakenNotificationMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -41,4 +44,16 @@ public class QuizNotificationPublisher {
         }
     }
 
+    public void publishStatSync(QuizStatSyncMessage message) {
+        try {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.NOTIFICATION_EXCHANGE,
+                    RabbitMQConfig.QUIZ_STAT_SYNC_ROUTING_KEY,
+                    message);
+            log.info("[RABBITMQ] Published stat-sync — authServiceId={} statType={}",
+                    message.getAuthServiceId(), message.getStatType());
+        } catch (Exception e) {
+            log.warn("[RABBITMQ] Failed to publish stat-sync message: {}", e.getMessage());
+        }
+    }
 }

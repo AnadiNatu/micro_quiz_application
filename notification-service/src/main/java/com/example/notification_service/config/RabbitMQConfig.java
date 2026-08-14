@@ -1,10 +1,9 @@
 package com.example.notification_service.config;
 
-import com.rabbitmq.client.ConnectionFactory;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.QueueBuilder;
-import org.springframework.amqp.core.TopicExchange;
+import com.example.notification_service.dto.kafka.QuizSubmittedNotificationMessage;
+import com.example.notification_service.dto.kafka.QuizTakenNotificationMessage;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -14,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
+//import java.util.Queue;
 
 @Configuration
 public class RabbitMQConfig {
@@ -56,10 +55,8 @@ public class RabbitMQConfig {
         Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
-        idClassMapping.put("quizTakenNotification",
-                com.example.notification_service.dto.messaging.QuizTakenNotificationMessage.class);
-        idClassMapping.put("quizSubmittedNotification",
-                com.example.notification_service.dto.messaging.QuizSubmittedNotificationMessage.class);
+        idClassMapping.put("quizTakenNotification", QuizTakenNotificationMessage.class);
+        idClassMapping.put("quizSubmittedNotification", QuizSubmittedNotificationMessage.class);
         classMapper.setIdClassMapping(idClassMapping);
         converter.setClassMapper(classMapper);
         return converter;

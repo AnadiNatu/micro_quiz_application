@@ -2,12 +2,14 @@ package com.example.quiz_service.service;
 
 import com.example.quiz_service.dto.applicationDTO.*;
 import com.example.quiz_service.dto.authDTO.UserStatSyncDTO;
+import com.example.quiz_service.dto.leaderboardDTO.QuizStatSyncMessage;
 import com.example.quiz_service.dto.notificationDTO.*;
 import com.example.quiz_service.entity.Quiz;
 import com.example.quiz_service.entity.QuizResult;
 import com.example.quiz_service.feign.NotificationFeignClient;
 import com.example.quiz_service.feign.QuestionClient;
 import com.example.quiz_service.feign.UserClient;
+import com.example.quiz_service.kafka.QuizNotificationPublisher;
 import com.example.quiz_service.mapper.QuizMapper;
 import com.example.quiz_service.repository.QuizRepository;
 import com.example.quiz_service.repository.QuizResultRepository;
@@ -55,6 +57,11 @@ public class QuizService {
 
         try {
             userClient.syncStat(UserStatSyncDTO.builder()
+                    .authServiceId(dto.getCreatedByUserId())
+                    .statType("QUIZ_CREATED")
+                    .build());
+
+            notificationPublisher.publishStatSync(QuizStatSyncMessage.builder()
                     .authServiceId(dto.getCreatedByUserId())
                     .statType("QUIZ_CREATED")
                     .build());
