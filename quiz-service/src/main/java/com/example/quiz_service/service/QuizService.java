@@ -9,13 +9,12 @@ import com.example.quiz_service.entity.QuizResult;
 import com.example.quiz_service.feign.NotificationFeignClient;
 import com.example.quiz_service.feign.QuestionClient;
 import com.example.quiz_service.feign.UserClient;
-import com.example.quiz_service.kafka.QuizNotificationPublisher;
+import com.example.quiz_service.rabbitMQ.QuizNotificationPublisher;
 import com.example.quiz_service.mapper.QuizMapper;
 import com.example.quiz_service.repository.QuizRepository;
 import com.example.quiz_service.repository.QuizResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class QuizService {
     private final NotificationFeignClient notificationClient;
     private final QuizNotificationPublisher notificationPublisher;
 
-    // ================= CREATE QUIZ =================
+    // CREATE QUIZ
     public QuizDTO createQuiz(CreateQuizDto dto) {
 
         List<Long> questionIds = questionClient.generateQuestions(
@@ -72,7 +71,7 @@ public class QuizService {
         return QuizMapper.toDTO(saved, creator, null);
     }
 
-    // ================= GET QUIZ BY ID =================
+    // GET QUIZ BY ID
     public QuizDTO getQuiz(Long quizId) {
 
         Quiz quiz = quizRepository.findById(quizId)
@@ -89,7 +88,7 @@ public class QuizService {
         return QuizMapper.toDTO(quiz, creator, participants);
     }
 
-    // ================= GET QUIZ BY TITLE (OLD FEATURE) =================
+    // GET QUIZ BY TITLE
     public QuizDTO getQuizByTitle(String title) {
 
         Quiz quiz = quizRepository.findByTitleIgnoreCase(title)
@@ -98,7 +97,7 @@ public class QuizService {
         return getQuiz(quiz.getId());
     }
 
-    // ================= GET ALL QUIZ BY CREATOR =================
+    // GET ALL QUIZ BY CREATOR
     public List<QuizDTO> getQuizzesByCreator(Long userId) {
 
         List<Quiz> quizzes = quizRepository.findByCreatedByUserId(userId);
@@ -112,7 +111,7 @@ public class QuizService {
                 .toList();
     }
 
-    // ================= GET ALL QUIZ TITLES BY PARTICIPANT =================
+    // GET ALL QUIZ TITLES BY PARTICIPANT
     public List<String> getQuizTitlesByParticipant(Long userId) {
 
         return quizRepository.findByParticipantId(userId)
@@ -121,7 +120,7 @@ public class QuizService {
                 .toList();
     }
 
-    // ================= GET QUESTIONS OF QUIZ =================
+    // GET QUESTIONS OF QUIZ
     public List<String> getQuestionTitlesOfQuiz(Long quizId) {
 
         Quiz quiz = quizRepository.findById(quizId)
@@ -135,7 +134,7 @@ public class QuizService {
                 .toList();
     }
 
-    // ================= GET QUESTIONS BY CATEGORY =================
+    // GET QUESTIONS BY CATEGORY
     public List<QuestionResponseDTO> getQuestionsByCategory(String category) {
 
         // delegate to question-service
@@ -244,7 +243,7 @@ public class QuizService {
         return questionClient.getQuestionsByIds(quiz.getQuestionIds());
     }
 
-    // ================= SUBMIT QUIZ =================
+    // SUBMIT QUIZ
     public ResultDTO submitQuiz(QuizTakenRequestDTO request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -284,7 +283,7 @@ public class QuizService {
         UserResponseDTO curator     = safeGetUser(quiz.getCreatedByUserId(), quiz.getCreatorUsername());
 
 
-        // ✅ Persist result (upsert-style: skip if already exists)
+        //Persist result (upsert-style: skip if already exists)
 //        if (!quizResultRepository.existsByQuizIdAndParticipantId(quiz.getId(), request.getUserId())) {
 
         if (!testUser && !quizResultRepository.existsByQuizIdAndParticipantId(quiz.getId(), request.getUserId())) {
@@ -383,15 +382,13 @@ public class QuizService {
 //   ---> SINGLE PARTICIPANT SINGLE QUIZ RESULT
     @Transactional(readOnly = true)
     public List<QuizResultDTO> getResultsByUser(Long userId) {
-        return quizResultRepository.findByParticipantId(userId).stream()
-                .map(this::toResultDTO).toList();
+        return quizResultRepository.findByParticipantId(userId).stream().map(this::toResultDTO).toList();
     }
 
-//    ---->  QUIZ STATS
+// QUIZ STATS
     @Transactional(readOnly = true)
     public QuizStatsDTO getQuizStats(Long quizId) {
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new RuntimeException("Quiz not found"));
 
         UserResponseDTO creator = userClient.getUserByAuthServiceId(quiz.getCreatedByUserId());
         List<QuizResultDTO> results = getResultsByQuiz(quizId);
@@ -422,12 +419,11 @@ public class QuizService {
 
 
 
-    // ================= DELETE QUIZ =================
+    // DELETE QUIZ
     @Transactional
     public QuizDTO deleteQuiz(Long id) {
 
-        Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+        Quiz quiz = quizRepository.findById(id).orElseThrow(() -> new RuntimeException("Quiz not found"));
 
         UserResponseDTO creator =  null;
 
@@ -448,7 +444,7 @@ public class QuizService {
         return dto; // 🔥 needed for @PostAuthorize
     }
 
-//    =========== HELPERS METHOD==========
+// HELPERS METHOD
 
     private QuizResultDTO toResultDTO(QuizResult r) {
         return QuizResultDTO.builder()
@@ -475,25 +471,17 @@ public class QuizService {
 
         List<Quiz> quizzes = quizRepository.findAll();
 
-        if (quizzes.isEmpty()) {
-            return List.of();
-        }
+        if (quizzes.isEmpty()) {return List.of();}
 
         // Cache creator information to avoid repeated Feign calls
         Map<Long, UserResponseDTO> creatorCache = new HashMap<>();
 
         return quizzes.stream()
                 .map(quiz -> {
-
-                    UserResponseDTO creator = creatorCache.computeIfAbsent(
-                            quiz.getCreatedByUserId(),
-                            id -> safeGetUser(id, quiz.getCreatorUsername())
-                    );
-
+                    UserResponseDTO creator = creatorCache.computeIfAbsent(quiz.getCreatedByUserId(),
+                            id -> safeGetUser(id, quiz.getCreatorUsername()));
                     return QuizMapper.toDTO(quiz, creator, null);
-
-                })
-                .toList();
+                }).toList();
     }
 
     private UserResponseDTO safeGetUser(Long authServiceId, String fallbackUsername) {

@@ -34,7 +34,7 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String SECRET ;
 
-    // ================= TOKEN GENERATION =================
+    // TOKEN GENERATION
 
     public String generateToken(Users user) {
 
@@ -50,14 +50,14 @@ public class JwtUtils {
                 .compact();
     }
 
-    // ================= KEY =================
+    // KEY
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = (SECRET).getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ================= EXTRACT =================
+    // EXTRACT
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -80,7 +80,7 @@ public class JwtUtils {
                 .getPayload();
     }
 
-    // ================= VALIDATION =================
+    // VALIDATION
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -95,7 +95,7 @@ public class JwtUtils {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // ================= HELPERS =================
+    // HELPERS
 
     public String getTokenFromHeader(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -106,7 +106,7 @@ public class JwtUtils {
         return null;
     }
 
-    // 🔥 FIXED METHOD
+    // FIXED METHOD
     public Users getLoggedInUser() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

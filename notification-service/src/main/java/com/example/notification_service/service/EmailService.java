@@ -74,7 +74,7 @@ public class EmailService {
                 """.formatted(title, body);
     }
 
-    // ========================= 1. CURATOR: Participant took your quiz =========================
+    // 1. CURATOR: Participant took your quiz
 
     public void sendCuratorQuizTakenEmail(QuizTakenNotificationDTO dto) {
         String body = """
@@ -102,7 +102,7 @@ public class EmailService {
                 wrapper("Participant Started Your Quiz", body));
     }
 
-    // ========================= 2. PARTICIPANT: You joined a quiz =========================
+    // 2. PARTICIPANT: You joined a quiz
 
     public void sendParticipantQuizStartedEmail(QuizTakenNotificationDTO dto) {
         String body = """
@@ -130,8 +130,7 @@ public class EmailService {
                 wrapper("Quiz Started Successfully", body));
     }
 
-    // ========================= 3. PARTICIPANT: Your quiz result =========================
-
+    // 3. PARTICIPANT: Your quiz result
     public void sendParticipantResultEmail(QuizSubmittedNotificationDTO dto) {
         String passBadge = dto.getPercentage() >= 60
                 ? "<span class='badge badge-pass'>PASSED ✅</span>"
@@ -169,8 +168,7 @@ public class EmailService {
                 wrapper("Quiz Result", body));
     }
 
-    // ========================= 4. CURATOR: Participant submitted quiz =========================
-
+    // 4. CURATOR: Participant submitted quiz
     public void sendCuratorSubmissionEmail(QuizSubmittedNotificationDTO dto) {
         String passBadge = dto.getPercentage() >= 60
                 ? "<span class='badge badge-pass'>PASSED ✅</span>"
@@ -205,8 +203,7 @@ public class EmailService {
                 wrapper("Participant Submitted Your Quiz", body));
     }
 
-    // ========================= 5. PARTICIPANT: Full Report Card =========================
-
+    // 5. PARTICIPANT: Full Report Card
     public void sendParticipantReportCardEmail(String toEmail, String username, List<QuizResultDTO> results) {
         if (results == null || results.isEmpty()) {
             log.warn("No results found for participant {} — skipping report card email", username);

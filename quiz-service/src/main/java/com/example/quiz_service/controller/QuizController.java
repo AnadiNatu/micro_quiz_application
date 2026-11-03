@@ -94,7 +94,7 @@ public class QuizController {
     public ResponseEntity<ResultDTO> submitQuiz(@RequestBody QuizTakenRequestDTO request) {
         return ResponseEntity.ok(quizService.submitQuiz(request));
     }
-// ===== NOTIFICATION SERVICE ENDPOINTS
+// NOTIFICATION SERVICE ENDPOINTS
     // Done
     //  All results for a specific quiz
     @GetMapping("/{quizId}/results")

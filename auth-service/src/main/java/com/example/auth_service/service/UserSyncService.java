@@ -49,7 +49,6 @@ public class UserSyncService {
                 .credentialsNonExpired(user.isCredentialsNonExpired())
                 .build();
 
-        log.info("------------------------------------------------");
         log.info("Synchronizing user : {}", user.getUsername());
 
         self.syncQuestionService(dto);
@@ -57,7 +56,6 @@ public class UserSyncService {
         self.syncQuizService(dto);
 
         log.info("Finished synchronization : {}", user.getUsername());
-        log.info("------------------------------------------------");
     }
 
     @Retryable(
@@ -84,15 +82,10 @@ public class UserSyncService {
         log.info("Quiz-Service synchronized successfully.");
     }
 
-    /**
-     * Synchronize every user.
-     */
     @Transactional
     public void synchronizeAllUsers() {
 
-        log.info("========================================================");
         log.info("Running Full User Synchronization");
-        log.info("========================================================");
 
         List<Users> users = userRepository.findAll();
 

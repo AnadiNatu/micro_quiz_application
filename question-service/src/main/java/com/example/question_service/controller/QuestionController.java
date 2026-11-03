@@ -53,6 +53,7 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getQuestionsByCategory(category));
     }
 
+    // Not there in the admin-service
     // FEIGN (QUIZ SERVICE)
     @GetMapping("/internal/generate")
     public ResponseEntity<List<Long>> generateQuiz(
@@ -102,6 +103,7 @@ public ResponseEntity<QuestionDto> deleteQuestion(@PathVariable Long id) {
 
 // Done
 // GET CATEGORY
+// Not used
 @GetMapping("/categories")
 public ResponseEntity<List<String>> getAllCategories() {
     return ResponseEntity.ok(questionService.getAllCategories());
@@ -110,6 +112,7 @@ public ResponseEntity<List<String>> getAllCategories() {
 
 // Done
 // QUESTIONS OF CREATOR
+// Not used
 @GetMapping("/creator/{creatorAuthServiceId}")
 @PreAuthorize("isAuthenticated()")
 public ResponseEntity<List<QuestionDto>> getQuestionsByCreator(

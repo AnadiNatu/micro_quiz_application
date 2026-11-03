@@ -108,7 +108,7 @@ public class JwtUtils {
         return null;
     }
 
-    // 🔥 FIXED METHOD
+    // FIXED METHOD
     public Users getLoggedInUser() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

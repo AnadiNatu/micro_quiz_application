@@ -30,33 +30,13 @@ public class TestUserInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
 
-        log.info("========================================================");
         log.info("Initializing Demo/Test Users");
-        log.info("========================================================");
 
-        createUser(
-                "admin",
-                "anadINatu2001+admin@gmail.com",
-                "8318428125",
-                "Admin@123",
-                UserRoles.ADMIN
-        );
+        createUser("admin", "anadINatu2001+admin@gmail.com", "8318428125", "Admin@123", UserRoles.ADMIN);
 
-        createUser(
-                "participant",
-                "anadINatu2001+participant@gmail.com",
-                "8707625812",
-                "Participant@123",
-                UserRoles.PARTICIPANT
-        );
+        createUser("participant", "anadINatu2001+participant@gmail.com", "8707625812", "Participant@123", UserRoles.PARTICIPANT);
 
-        createUser(
-                "curator",
-                "anadINatu2001+curator@gmail.com",
-                "9415022771",
-                "Curator@123",
-                UserRoles.CURATOR
-        );
+        createUser("curator", "anadINatu2001+curator@gmail.com", "9415022771", "Curator@123", UserRoles.CURATOR);
 
         log.info("Demo users initialized.");
 
@@ -67,12 +47,7 @@ public class TestUserInitializer implements ApplicationRunner {
         log.info("Demo initialization completed successfully.");
     }
 
-    private Users createUser(
-            String username,
-            String email,
-            String phone,
-            String password,
-            UserRoles role) {
+    private Users createUser(String username, String email, String phone, String password, UserRoles role) {
 
         return userRepository.findByEmailIgnoreCase(email)
                 .map(existing -> {

@@ -1,4 +1,4 @@
-package com.example.quiz_service.kafka;
+package com.example.quiz_service.rabbitMQ;
 
 import com.example.quiz_service.config.RabbitMQConfig;
 import com.example.quiz_service.dto.leaderboardDTO.QuizStatSyncMessage;

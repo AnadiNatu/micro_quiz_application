@@ -33,7 +33,7 @@ public class NotificationController {
     //  Sends email to CURATOR + confirmation email to PARTICIPANT
     @PostMapping("/internal/quiz-taken")
     public ResponseEntity<Void> handleQuizTaken(@RequestBody QuizTakenNotificationDTO dto){
-        log.info("📩 Internal: quiz-taken → quiz={}, participant={}", dto.getQuizTitle(), dto.getParticipantUsername());
+        log.info("Internal: quiz-taken → quiz={}, participant={}", dto.getQuizTitle(), dto.getParticipantUsername());
         emailService.sendCuratorQuizTakenEmail(dto);
         emailService.sendParticipantQuizStartedEmail(dto);
         return ResponseEntity.ok().build();
@@ -43,7 +43,7 @@ public class NotificationController {
     // Sends result email to PARTICIPANT + notification to CURATOR.
     @PostMapping("/internal/quiz-submitted")
     public ResponseEntity<Void> handleQuizSubmitted(@RequestBody QuizSubmittedNotificationDTO dto){
-        log.info("📩 Internal: quiz-submitted → quiz={}, participant={}, score={}%",
+        log.info("Internal: quiz-submitted → quiz={}, participant={}, score={}%",
                 dto.getQuizTitle(), dto.getParticipantUsername(), dto.getPercentage());
         emailService.sendParticipantResultEmail(dto);
         emailService.sendCuratorSubmissionEmail(dto);
@@ -94,7 +94,7 @@ public class NotificationController {
                 .build();
 
         emailService.sendParticipantResultEmail(dto);
-        return ResponseEntity.ok("📧 Result email re-sent to " + user.getEmail());
+        return ResponseEntity.ok("Result email re-sent to " + user.getEmail());
     }
 
 //    Document endpoints
@@ -109,6 +109,7 @@ public class NotificationController {
     }
 
     // Done
+
 //     PARTICIPANT: Printable personal report card.
     @GetMapping(value = "/document/participant/{userId}/report" , produces = MediaType.TEXT_HTML_VALUE)
     @PreAuthorize("hasAnyAuthority('PARTICIPANT' , 'ADMIN')")

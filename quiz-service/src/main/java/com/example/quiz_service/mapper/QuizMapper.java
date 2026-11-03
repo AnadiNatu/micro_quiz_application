@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class QuizMapper {
 
-    // ================= ENTITY → DTO =================
+    // ENTITY -> DTO
 
     public static QuizDTO toDTO(
             Quiz quiz,
@@ -39,7 +39,7 @@ public class QuizMapper {
                 .build();
     }
 
-    // ================= CREATE =================
+    // CREATE
 
     public static Quiz toEntity(CreateQuizDto dto, List<Long> questionIds) {
 

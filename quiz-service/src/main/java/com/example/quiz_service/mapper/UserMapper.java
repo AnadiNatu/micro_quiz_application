@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Component
 public class UserMapper {
 
-    // ================= ENTITY → DTO =================
+    // ENTITY -> DTO
 
     public static UserDto toDTO(Users user) {
         if (user == null) return null;
@@ -57,7 +57,7 @@ public class UserMapper {
                 .build();
     }
 
-    // ================= DTO → ENTITY =================
+    // DTO -> ENTITY
 
     public static Users toEntity(SignUpRequestDTO dto) {
         if (dto == null) return null;
@@ -104,7 +104,7 @@ public class UserMapper {
         return user;
     }
 
-    // ================= UPDATE HELPER =================
+    // UPDATE HELPER
 
     public static void updateEntity(Users user, UserDto dto) {
         if (user == null || dto == null) return;

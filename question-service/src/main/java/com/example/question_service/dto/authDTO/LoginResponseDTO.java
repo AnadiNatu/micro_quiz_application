@@ -14,3 +14,6 @@ public class LoginResponseDTO {
     private String username;
     private String role;
 }
+// the frontend model has the
+// email : string
+// authServiceID : number

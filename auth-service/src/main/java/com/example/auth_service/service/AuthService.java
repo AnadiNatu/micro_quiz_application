@@ -58,7 +58,7 @@ public class AuthService {
 //        }
 //    }
 
-    // ================= SIGNUP =================
+    // SIGNUP
     @Transactional
     public SignUpResponseDTO signup(SignUpRequestDTO request) {
 
@@ -100,7 +100,7 @@ public class AuthService {
         return UserMapper.toSignUpResponse(savedUser);
     }
 
-    // ================= LOGIN =================
+    // LOGIN
     public LoginResponseDTO login(LoginRequestDTO request) {
 
         authenticationManager.authenticate(
@@ -120,7 +120,7 @@ public class AuthService {
         return UserMapper.toLoginResponse(user, token);
     }
 
-    // ================= GET USER =================
+    //GET USER
     public UserDto getUserById(Long id) {
         log.debug("[AUTH-SERVICE] Getting User By Id");
         return userRepository.findById(id)
@@ -128,15 +128,6 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-//    public List<UserDto> getAllUsers() {
-//        List<UserDto> users = userRepository.findAll()
-//                .stream()
-//                .map(UserMapper::toDTO)
-//                .toList();
-//
-//        log.debug("[AUTH] Fetched all users, count={}", users.size());
-//        return  users;
-//    }
 
 //    Feign lookup by authServiceId
 public UserDto getUserByAuthServiceId(Long authServiceId) {
@@ -168,7 +159,7 @@ public UserDto getUserByAuthServiceId(Long authServiceId) {
         log.info("[AUTH] Stat synced: authServiceId={}, statType={}", dto.getAuthServiceId(), dto.getStatType());
     }
 
-    // ================= RESET PASSWORD =================
+    // RESET PASSWORD
     public void sendResetToken(String email) {
 
         Users user = userRepository.findByUsernameIgnoreCase(email)
@@ -202,7 +193,7 @@ public UserDto getUserByAuthServiceId(Long authServiceId) {
         return "Password reset successful";
     }
 
-    // ================= RESET PASSWORD =================
+    // RESET PASSWORD
     public UserDto disableUser(Long id) {
 
         Users user = userRepository.findById(id)

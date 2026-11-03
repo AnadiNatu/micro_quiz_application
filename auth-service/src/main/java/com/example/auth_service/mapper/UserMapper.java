@@ -13,12 +13,6 @@ import java.time.LocalDateTime;
 @Component
 public class UserMapper {
 
-    // ================= ENTITY → DTO =================
-
-
-    // ================= DTO → ENTITY =================
-
-
     public static Users toEntity(UserDto dto) {
         if (dto == null) return null;
 

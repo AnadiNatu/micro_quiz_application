@@ -18,7 +18,7 @@ public class LeaderboardController {
 
     private final LeaderboardService leaderboardService;
 
-    // ===================== QUIZ LEADERBOARD =====================
+    //QUIZ LEADERBOARD
 
     // Done
     // Full ranked leaderboard for a single quiz — authenticated users
@@ -40,7 +40,7 @@ public class LeaderboardController {
         return ResponseEntity.ok(leaderboardService.getTopNForQuiz(quizId, limit));
     }
 
-    // ===================== GLOBAL LEADERBOARD =====================
+    // GLOBAL LEADERBOARD
 
     // Done
     // Global leaderboard aggregated across all quizzes — authenticated users
@@ -52,7 +52,7 @@ public class LeaderboardController {
         return ResponseEntity.ok(leaderboardService.getGlobalLeaderboard(limit));
     }
 
-    // ===================== CATEGORY LEADERBOARD =====================
+    //CATEGORY LEADERBOARD
 
     // Leaderboard filtered by quiz category — authenticated users
     @GetMapping("/category/{category}")
@@ -63,7 +63,7 @@ public class LeaderboardController {
         return ResponseEntity.ok(leaderboardService.getCategoryLeaderboard(category));
     }
 
-    // ===================== PARTICIPANT RANKING =====================
+    //PARTICIPANT RANKING
 
     // Full ranking profile for a participant — their stats + optional quiz-specific rank
     @GetMapping("/participant/{participantId}")

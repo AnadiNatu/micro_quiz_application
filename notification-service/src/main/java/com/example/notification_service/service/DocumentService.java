@@ -13,7 +13,7 @@ public class DocumentService {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd MMM yyyy , hh:mm a");
 
-    // ========================= SHARED HTML SHELL =========================
+    // SHARED HTML SHELL
 
     private String shell(String title, String subtitle, String body) {
         return """
@@ -83,7 +83,7 @@ public class DocumentService {
                 """.formatted(title, subtitle, LocalDateTime.now().format(FMT), body);
     }
 
-    // ========================= 1. QUIZ RESULT TABLE (for one quiz - ADMIN/CURATOR) =========================
+    // 1. QUIZ RESULT TABLE (for one quiz - ADMIN/CURATOR)
 
     public String generateQuizResultTable(QuizStatsDTO stats) {
         StringBuilder rows = new StringBuilder();
@@ -255,7 +255,7 @@ public class DocumentService {
         return shell("📋 Quiz Overview Report", "Creator: " + creatorUsername, content);
     }
 
-    // ========================= 3. PARTICIPANT REPORT CARD (printable) =========================
+    // 3. PARTICIPANT REPORT CARD (printable)
 
     public String generateParticipantReportCard(String username, String email,
                                                 List<QuizResultDTO> results) {
@@ -364,7 +364,7 @@ public class DocumentService {
         return shell("📚 Participant Report Card", "Participant: " + username + " · " + email, content);
     }
 
-    // ========================= 4. SINGLE QUIZ RESULT (for participant to print) =========================
+    // 4. SINGLE QUIZ RESULT (for participant to print)
 
     public String generateSingleResultDocument(QuizResultDTO result) {
         String badge = result.getPercentage() >= 60

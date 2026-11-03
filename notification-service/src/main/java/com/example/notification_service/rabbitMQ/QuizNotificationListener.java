@@ -1,4 +1,4 @@
-package com.example.notification_service.kafka;
+package com.example.notification_service.rabbitMQ;
 
 import com.example.notification_service.config.RabbitMQConfig;
 import com.example.notification_service.dto.internal.QuizSubmittedNotificationDTO;

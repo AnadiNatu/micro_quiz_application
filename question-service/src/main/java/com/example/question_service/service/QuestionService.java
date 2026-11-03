@@ -69,17 +69,11 @@ public class QuestionService {
 
     public List<QuestionResponseDTO> getQuestionsByCategory(String category) {
 
-        List<Questions> questions =
-                questionRepository.findByCategoryIgnoreCase(category);
+        List<Questions> questions = questionRepository.findByCategoryIgnoreCase(category);
 
-        List<QuestionResponseDTO> response =
-                QuestionMapper.toQuestionResponse(questions);
+        List<QuestionResponseDTO> response = QuestionMapper.toQuestionResponse(questions);
 
-        log.debug(
-                "[QUESTION] Fetched {} questions for category={}",
-                response.size(),
-                category
-        );
+        log.debug("[QUESTION] Fetched {} questions for category={}", response.size(), category);
 
         return response;
     }
@@ -128,31 +122,16 @@ public class QuestionService {
 
         for(ResponseDto response : responses){
 
-            Questions question =
-                    questionRepository.findById(response.getQuestionId())
-                            .orElseThrow(() ->
-                                    new RuntimeException(
-                                            "Question not found : "
-                                                    + response.getQuestionId()));
+            Questions question = questionRepository.findById(response.getQuestionId()).orElseThrow(() -> new RuntimeException("Question not found : " + response.getQuestionId()));
 
-            evaluation.add(
-
-                    ResponseEvaluationDto.builder()
-
-                            .questionTitle(question.getQuestionTitle())
-
-                            .selectedAnswer(response.getSelectedAnswer())
-
-                            .correctAnswer(question.getRightAnswer())
-
-                            .build()
-
-            );
+            evaluation.add(ResponseEvaluationDto.builder()
+                    .questionTitle(question.getQuestionTitle())
+                    .selectedAnswer(response.getSelectedAnswer())
+                    .correctAnswer(question.getRightAnswer())
+                    .build());
 
         }
-
         return evaluation;
-
     }
 
 //    Feign Functionality
@@ -190,9 +169,7 @@ public List<QuestionResponseDTO> getQuestionsByIds(List<Long> ids) {
 //    }
 
     public QuestionDto deleteQuestion(Long id) {
-
-        Questions question = questionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Question not found"));
+        Questions question = questionRepository.findById(id).orElseThrow(() -> new RuntimeException("Question not found"));
 
         QuestionDto dto = QuestionMapper.toDTO(question);
 
